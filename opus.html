@@ -186,6 +186,7 @@ html.work-mode .thumb{background-color:var(--fill-work)}
 .scale span:before{
   content:"";position:absolute;left:50%;top:-1.5vmin;width:1px;height:.9vmin;background:var(--ink2);opacity:.6;
 }
+html.dense .scale span{font-size:1.6vmin}
 .scale span.k{color:var(--ink);font-weight:700}
 
 .minute{position:relative;margin-top:1.4vmin}
@@ -401,19 +402,19 @@ html.work-mode .thumb{background-color:var(--fill-work)}
 
   function layout() {
     app.style.height = window.innerHeight + "px";
-    var land = window.innerWidth > window.innerHeight;
-    var span = (range[1] - range[0]) / 60;
-    var step = span <= (land ? 10 : 9) ? 1 : span <= (land ? 20 : 15) ? 2 : 3;
-    var marks = [range[0]];
-    for (var h = Math.ceil(range[0] / 60) * 60; h < range[1]; h += 60) {
-      if ((h / 60) % step === 0 && h - range[0] >= 60 && range[1] - h >= 60) marks.push(h);
+    // every clock hour gets a number; skip an hour too close to a half-hour start/end label
+    var ends = [posX(range[0]), posX(range[1])];
+    var gap0 = range[0] % 60 ? 30 : 12, gap1 = range[1] % 60 ? 30 : 12;
+    var html = "", mark = function (m, x) {
+      html += '<span class="' + (m % 720 === 0 ? "k" : "") + '" style="left:' + x.toFixed(1) + 'px">' + fmt(m) + "</span>";
+    };
+    mark(range[0], ends[0]);
+    for (var h = Math.floor(range[0] / 60) * 60 + 60; h < range[1]; h += 60) {
+      var x = posX(h);
+      if (x - ends[0] >= gap0 && ends[1] - x >= gap1) mark(h, x);
     }
-    marks.push(range[1]);
-    var html = "";
-    for (var i = 0; i < marks.length; i++) {
-      var m = marks[i];
-      html += '<span class="' + (m % 720 === 0 ? "k" : "") + '" style="left:' + posX(m).toFixed(1) + 'px">' + fmt(m) + "</span>";
-    }
+    mark(range[1], ends[1]);
+    root.classList.toggle("dense", (range[1] - range[0]) / 60 > 18 && window.innerWidth < window.innerHeight);
     scale.innerHTML = html;
 
     var t = "";
