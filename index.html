@@ -89,7 +89,9 @@ body{
 }
 /* header */
 .head{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap;-webkit-flex-shrink:0;flex-shrink:0}
-.clock{margin-right:3vmin}
+.clock{margin-right:3vmin;position:relative;cursor:pointer}
+.tag{position:absolute;right:0;bottom:0;padding:.7vmin 1.8vmin;border-radius:1.4vmin;font-size:2.3vmin;font-weight:700;letter-spacing:.2em;color:#fff;background:var(--accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 .4vmin .8vmin rgba(0,0,0,.35);opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s;pointer-events:none}
+.tag.on{opacity:1}
 .time{font-size:15vmin;line-height:1;font-weight:300;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 0 var(--hi)}
 .colon{display:inline-block;padding:0 .02em;position:relative;top:-.04em;-webkit-transition:opacity .25s;transition:opacity .25s}
 .colon.off{opacity:.18}
@@ -214,9 +216,10 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
 <div class="desk"><div class="panel" id="panel">
 
   <div class="head">
-    <div class="clock">
+    <div class="clock" id="clock">
       <div class="time"><span id="hh">00</span><span class="colon" id="colon">:</span><span id="mm">00</span></div>
       <div class="date" id="date"></div>
+      <div class="tag" id="tag"></div>
     </div>
     <div class="lcd">
       <i class="led" id="led"></i>
@@ -295,9 +298,13 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
     }
   } catch (e) { systemTheme = false; }
 
+  var themePref = 'auto';
+  try { var tp = localStorage.getItem('dayline-theme'); if (tp === 'light' || tp === 'dark') themePref = tp; } catch (e) {}
+
   function applyTheme(now) {
     var dark;
-    if (systemTheme) { dark = mqDark.matches; }
+    if (themePref !== 'auto') { dark = themePref === 'dark'; }
+    else if (systemTheme) { dark = mqDark.matches; }
     else {
       var s = sun(now), h = now.getHours() + now.getMinutes() / 60;
       dark = h < s.rise || h >= s.set;
@@ -424,6 +431,18 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
     layout(); update();
   }
   sw.addEventListener('click', function () { setMode(mode === 'work' ? 'day' : 'work'); });
+
+  /* ---------- tap time: auto / light / dark ---------- */
+  var tagEl = $('tag'), tagTimer = 0;
+  $('clock').addEventListener('click', function () {
+    themePref = themePref === 'auto' ? 'light' : (themePref === 'light' ? 'dark' : 'auto');
+    try { if (themePref === 'auto') localStorage.removeItem('dayline-theme'); else localStorage.setItem('dayline-theme', themePref); } catch (e) {}
+    applyTheme(new Date());
+    tagEl.textContent = themePref === 'auto' ? 'AUTO' : themePref === 'dark' ? 'DARK' : 'LIGHT';
+    tagEl.className = 'tag on';
+    clearTimeout(tagTimer);
+    tagTimer = setTimeout(function () { tagEl.className = 'tag'; }, 1600);
+  });
 
   /* ---------- no scroll / zoom ---------- */
   document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
