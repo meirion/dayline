@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Day">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACyklEQVR42u3dTUoDMRiA4dxD6Q2kV/NuXkBcuvECBUGhIG60J7DSWtROh8wwP/kyD7x01UCneeiq+ZK2rxupseQrEByCQ3AIDsEhOASH4BAcgkOCQ3AIDsEhOASH4BAcgkNwSHAIDsEhOASH4BAcgkNwCA4JDsEhOASH4BAcgkNwCA7BITgkOASH4BAcgkNwCA7BITgEhwRHh3Z3CQ79AXEpOMhIfMDRWcZyfMDRR8ZCfEz6hLuP96LrIuPY5B+yHhylawiIY0oriYnQOEZVksioA8cYPhIW/WWU52NYIomMan45BveRyKgPx1A+EhlV4hjEBxxwjIajHhk9fBT/OHPiqE1GJx9BHgeOyX3EeRY4pvUR6kHmwVGzjJ9Wq+t9exDfr2GfIhKOp8f7KB1wHJr9w1SLIxCIYnH0hlIujqAsCsfRiUihOELLKB9Hpo+pcSxBRggco/qYAcd6fXOq07fwcnt1aryFv9/TG8fb9vnU2Avj4Wg3cV7m1p437MJ/7/mN43PzcChza88bY2Gmj6JxtMto8dG+wfnbnLkwB8clH+0b3LLNvRfCAQcccCwERw8ZjT5yNrhxm4daeAnHuY+cDW7c5t4LO/mAAw444IADDjjggAMOOOCAAw444IADDjjggAMOOOCAAw444IADDjiWjsOfffzZBw444IDD0QRHExxqcqjJcUjHIefC4SC1g9RGMBjBYHiL4S3GPhn7ZGDcwAPjjmPjDIzjozIc5pDCAQccgXBU72PJMlypkeVjmTLgqDnXeKnsa7z4cAEgH8uS4dJhLFxXTkY5OCgJbWIiHKzE0jAnDsUKDsEhOASH4BAcgkNwCA7BITgkOASH4BAcgkNwCA7BITgEhwSH4BAcgkNwCA7BITgEh+CQ4BAcgkNwCA7BITgEh+AQHIJDgkNwCA7BITgEh+AQHIJDcEhwCA7BITgEhwrpC8MC6OV8Za+PAAAAAElFTkSuQmCC">
+<title>Day</title>
+<style>
+:root{
+  --bg:#E6E3DC; --bg2:#D8D4CA;
+  --panel:#F3F1EC; --panel2:#E5E2DA;
+  --hl:rgba(255,255,255,.95); --sh:rgba(70,58,35,.20);
+  --channel:#CBC6BB; --cellhl:rgba(255,255,255,.55);
+  --cell:#ECE9E2; --cell-night:#DEDAD1; --cell-work:#F2DEC4;
+  --fill:#2F2F2D; --fill-work:#E2701B;
+  --ink:#1E1E1C; --ink2:#8D897F;
+  --needle:#1E1E1C; --knob:#F2B300;
+  --led-off:#BDB8AD;
+}
+html.dark{
+  --bg:#191918; --bg2:#0E0E0D;
+  --panel:#262624; --panel2:#1C1C1B;
+  --hl:rgba(255,255,255,.07); --sh:rgba(0,0,0,.65);
+  --channel:#0D0D0C; --cellhl:rgba(255,255,255,.06);
+  --cell:#2B2B29; --cell-night:#222221; --cell-work:#3B2D1F;
+  --fill:#C9C4BA; --fill-work:#E2701B;
+  --ink:#ECE8E0; --ink2:#75716A;
+  --needle:#ECE8E0; --knob:#F2B300;
+  --led-off:#363532;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{height:100%;overflow:hidden}
+body{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background-color:var(--bg);
+  background-image:radial-gradient(ellipse at 50% 35%,var(--bg) 40%,var(--bg2) 100%);
+  color:var(--ink);
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-feature-settings:"tnum";font-feature-settings:"tnum";
+  transition:background-color .8s,color .8s;
+  touch-action:manipulation;
+}
+#app{
+  position:absolute;top:0;left:0;right:0;height:100%;
+  display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;
+  -webkit-justify-content:space-between;justify-content:space-between;
+  padding:calc(20px + 2.5vmin) 5vmin 5vmin;
+  padding-left:calc(5vmin + env(safe-area-inset-left));
+  padding-right:calc(5vmin + env(safe-area-inset-right));
+  padding-bottom:calc(5vmin + env(safe-area-inset-bottom));
+}
+
+/* header */
+header{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between}
+.date{font-size:2.1vmin;font-weight:500;letter-spacing:.32em;color:var(--ink2);text-transform:uppercase}
+.controls{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+.led{
+  width:1.5vmin;height:1.5vmin;border-radius:50%;margin-right:3vmin;
+  background:var(--led-off);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.35),0 1px 0 var(--hl);
+  transition:background .6s,box-shadow .6s;
+}
+.led.on{
+  background:radial-gradient(circle at 40% 35%,#B8F5C8,#3FB565 60%,#2C8A49);
+  box-shadow:0 0 1.4vmin rgba(63,181,101,.65),inset 0 -1px 1px rgba(0,0,0,.25);
+}
+.switch{
+  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
+  background:none;border:0;outline:0;font:inherit;color:inherit;cursor:pointer;
+  padding:1.5vmin 0 1.5vmin 1.5vmin;
+}
+.sl{font-size:1.7vmin;font-weight:600;letter-spacing:.2em;color:var(--ink2);transition:color .3s;width:7.5vmin}
+.sl.a{text-align:right;margin-right:1.6vmin}
+.sl.b{text-align:left;margin-left:1.6vmin}
+html:not(.work-mode) .sl.a,html.work-mode .sl.b{color:var(--ink)}
+.slot{
+  position:relative;width:10vmin;height:4.6vmin;border-radius:2.3vmin;
+  background:var(--channel);
+  box-shadow:inset 0 .4vmin .9vmin rgba(0,0,0,.32),0 1px 0 var(--hl);
+}
+.thumb{
+  position:absolute;top:.45vmin;left:.45vmin;width:5vmin;height:3.7vmin;border-radius:1.85vmin;
+  background-color:var(--panel);
+  background-image:
+    repeating-linear-gradient(90deg,transparent 0,transparent 3px,rgba(0,0,0,.13) 3px,rgba(0,0,0,.13) 4px),
+    linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.08));
+  background-size:1.6vmin 55%,100% 100%;
+  background-position:center,center;background-repeat:no-repeat;
+  box-shadow:0 .3vmin .7vmin rgba(0,0,0,.35),inset 0 1px 0 var(--hl);
+  -webkit-transition:-webkit-transform .35s cubic-bezier(.3,1.3,.5,1);transition:transform .35s cubic-bezier(.3,1.3,.5,1);
+}
+html.work-mode .thumb{-webkit-transform:translateX(4.1vmin);transform:translateX(4.1vmin)}
+html.work-mode .thumb{background-color:var(--fill-work)}
+
+/* hero */
+.hero{
+  -webkit-flex:1;flex:1;
+  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;
+  -webkit-justify-content:space-between;justify-content:space-between;
+  padding:0 1vmin;
+}
+.time{font-size:25vmin;font-weight:200;letter-spacing:-.03em;line-height:1;white-space:nowrap}
+.time .colon{position:relative;top:-.08em;margin:0 .01em;opacity:.55}
+.time .ap{font-size:.16em;font-weight:500;letter-spacing:.2em;color:var(--ink2);margin-left:.5em;vertical-align:.3em}
+.stats{display:-webkit-flex;display:flex;-webkit-align-items:stretch;align-items:stretch}
+.stat{text-align:right;min-width:20vmin}
+.val{font-size:6.6vmin;font-weight:300;line-height:1.1;white-space:nowrap}
+.val i{font-style:normal;font-size:.5em;font-weight:400;color:var(--ink2);margin-left:.1em}
+.lbl{margin-top:1vmin;font-size:1.6vmin;font-weight:600;letter-spacing:.28em;color:var(--ink2)}
+.sep{width:1px;margin:0 4vmin;background:var(--ink2);opacity:.35}
+.v-work .val{color:var(--fill-work)}
+
+@media (orientation:portrait){
+  .hero{-webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:center;justify-content:center}
+  .time{font-size:24vmin;margin-bottom:6vmin}
+  .stat{text-align:center;min-width:26vmin}
+  .val{font-size:7.5vmin}
+  .lbl{font-size:1.8vmin}
+  .sep{margin:0 5vmin}
+}
+
+/* panel */
+.panel{
+  position:relative;
+  border-radius:3.2vmin;
+  background-color:var(--panel);
+  background-image:linear-gradient(180deg,var(--panel),var(--panel2));
+  box-shadow:inset 0 1px 0 var(--hl),inset 0 -1px 0 rgba(0,0,0,.06),0 2.2vmin 4vmin -1.2vmin var(--sh),0 .3vmin .7vmin var(--sh);
+  padding:5.2vmin 4vmin 3.4vmin;
+  transition:background-color .8s;
+}
+.channel{
+  position:relative;
+  display:-webkit-flex;display:flex;
+  height:10vmin;padding:.7vmin;border-radius:1.9vmin;
+  background:var(--channel);
+  box-shadow:inset 0 .5vmin 1.3vmin rgba(0,0,0,.30),inset 0 -1px 0 rgba(255,255,255,.18),0 1px 0 var(--hl);
+}
+.cell{
+  -webkit-flex:1 1 0%;flex:1 1 0%;min-width:0;
+  position:relative;margin-right:3px;border-radius:.9vmin;overflow:hidden;
+  background-color:var(--cell);
+  box-shadow:inset 0 1px 0 var(--cellhl),0 1px 1px rgba(0,0,0,.18);
+  transition:background-color .8s;
+}
+.cell:last-of-type{margin-right:0}
+.cell.night{background-color:var(--cell-night)}
+.cell.work{background-color:var(--cell-work)}
+.fill{
+  position:absolute;left:0;top:0;bottom:0;width:0;
+  background-color:var(--fill);
+  background-image:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,0) 45%,rgba(0,0,0,.14));
+}
+.work .fill{background-color:var(--fill-work)}
+.cur .fill{box-shadow:1px 0 0 rgba(0,0,0,.15)}
+
+.needle{
+  position:absolute;left:0;top:-2vmin;bottom:-2vmin;width:0;z-index:3;
+}
+.ready .needle{-webkit-transition:-webkit-transform .8s ease,opacity .5s;transition:transform .8s ease,opacity .5s}
+.needle:before{
+  content:"";position:absolute;left:-1.5px;width:3px;top:0;bottom:0;border-radius:2px;
+  background:var(--needle);box-shadow:0 1px 3px rgba(0,0,0,.4);
+}
+.knob{
+  position:absolute;left:-1.8vmin;top:-2.6vmin;width:3.6vmin;height:3.6vmin;border-radius:50%;
+  background:radial-gradient(circle at 36% 30%,#FFE58A,var(--knob) 55%,#C48A00);
+  box-shadow:0 .35vmin .7vmin rgba(0,0,0,.38),inset 0 -1px 1px rgba(0,0,0,.25),inset 0 1px 1px rgba(255,255,255,.6);
+}
+.needle.out{opacity:.35}
+
+.scale{position:relative;height:4.6vmin}
+.scale span{
+  position:absolute;top:2.2vmin;
+  -webkit-transform:translateX(-50%);transform:translateX(-50%);
+  font-size:1.9vmin;font-weight:500;color:var(--ink2);white-space:nowrap;
+}
+.scale span:before{
+  content:"";position:absolute;left:50%;top:-1.5vmin;width:1px;height:.9vmin;background:var(--ink2);opacity:.6;
+}
+.scale span.k{color:var(--ink);font-weight:700}
+
+.minute{position:relative;margin-top:1.4vmin}
+.mchannel{
+  position:relative;height:1.8vmin;padding:.35vmin;border-radius:.9vmin;
+  background:var(--channel);
+  box-shadow:inset 0 .3vmin .6vmin rgba(0,0,0,.3),0 1px 0 var(--hl);
+}
+.mtrack{position:relative;height:100%;border-radius:.6vmin;overflow:hidden;background:var(--cell)}
+.mfill{
+  position:absolute;left:0;top:0;bottom:0;width:0;border-radius:.6vmin;
+  background-color:var(--knob);
+  background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.08));
+}
+.ready .mfill{-webkit-transition:width 1s linear;transition:width 1s linear}
+.mticks{position:relative;height:1.6vmin;margin:0 .35vmin}
+.mticks b{position:absolute;top:.5vmin;width:1px;height:.7vmin;background:var(--ink2);opacity:.5}
+.mticks b.q{height:1.1vmin;opacity:.9}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="date" id="date"></div>
+    <div class="controls">
+      <div class="led" id="led"></div>
+      <button class="switch" id="mode" aria-label="Toggle working day">
+        <span class="sl a">DAY</span><span class="slot"><span class="thumb"></span></span><span class="sl b">WORK</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="time"><span id="hh"></span><span class="colon">:</span><span id="mm"></span><span class="ap" id="ap"></span></div>
+    <div class="stats" id="stats">
+      <div class="stat"><div class="val" id="v1"></div><div class="lbl" id="l1"></div></div>
+      <div class="sep"></div>
+      <div class="stat"><div class="val" id="v2"></div><div class="lbl">DONE</div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="channel" id="channel">
+      <div class="needle" id="needle"><i class="knob"></i></div>
+    </div>
+    <div class="scale" id="scale"></div>
+    <div class="minute">
+      <div class="mchannel"><div class="mtrack"><div class="mfill" id="mfill"></div></div></div>
+      <div class="mticks" id="mticks"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var WS = 8 * 60, WE = 17 * 60;          // working day 08:00–17:00
+  var LAT = 51.5, LNG = -0.13;             // London (UK) for sunrise/sunset
+  var DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  var MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+  function $(id) { return document.getElementById(id); }
+  var root = document.documentElement, app = $("app"), channel = $("channel"), scale = $("scale"),
+      needle = $("needle"), mfill = $("mfill"), led = $("led"), stats = $("stats");
+
+  var work = false;
+  try { work = localStorage.getItem("lc-work") === "1"; } catch (e) {}
+
+  var cells = [], range = [0, 1440], lastDay = -1, sun = { rise: 7, set: 19 }, systemTheme = false;
+  var cache = {};
+
+  function setHTML(el, key, html) { if (cache[key] !== html) { cache[key] = html; el.innerHTML = html; } }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function dur(m) {
+    m = Math.max(0, Math.ceil(m - 1e-6));
+    var h = Math.floor(m / 60), r = m % 60;
+    return h ? h + "<i>h</i> " + pad(r) + "<i>m</i>" : r + "<i>m</i>";
+  }
+
+  /* --- sunrise / sunset (NOAA almanac algorithm), returns local decimal hours --- */
+  function sunTime(date, rising) {
+    var rad = Math.PI / 180, zen = 90.833;
+    var start = new Date(date.getFullYear(), 0, 0);
+    var N = Math.floor((date - start) / 864e5);
+    var lngH = LNG / 15;
+    var t = N + ((rising ? 6 : 18) - lngH) / 24;
+    var M = 0.9856 * t - 3.289;
+    var L = (M + 1.916 * Math.sin(M * rad) + 0.020 * Math.sin(2 * M * rad) + 282.634 + 360) % 360;
+    var RA = (Math.atan(0.91764 * Math.tan(L * rad)) / rad + 360) % 360;
+    RA = (RA + Math.floor(L / 90) * 90 - Math.floor(RA / 90) * 90) / 15;
+    var sinDec = 0.39782 * Math.sin(L * rad), cosDec = Math.cos(Math.asin(sinDec));
+    var cosH = (Math.cos(zen * rad) - sinDec * Math.sin(LAT * rad)) / (cosDec * Math.cos(LAT * rad));
+    if (cosH > 1 || cosH < -1) return rising ? 6 : 18;
+    var H = (rising ? 360 - Math.acos(cosH) / rad : Math.acos(cosH) / rad) / 15;
+    var UT = ((H + RA - 0.06571 * t - 6.622 - lngH) % 24 + 24) % 24;
+    var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) + UT * 36e5);
+    return d.getHours() + d.getMinutes() / 60;
+  }
+
+  /* --- theme --- */
+  function setDark(on) {
+    if (root.classList.contains("dark") !== on) root.classList.toggle("dark", on);
+  }
+  if (window.matchMedia) {
+    var mqD = window.matchMedia("(prefers-color-scheme: dark)");
+    var mqL = window.matchMedia("(prefers-color-scheme: light)");
+    if (mqD.matches || mqL.matches) {
+      systemTheme = true;
+      var onChange = function () { setDark(mqD.matches); };
+      onChange();
+      if (mqD.addEventListener) mqD.addEventListener("change", onChange);
+      else if (mqD.addListener) mqD.addListener(onChange);
+    }
+  }
+
+  /* --- build --- */
+  function h12(h) { h = h % 12; return h === 0 ? 12 : h; }
+
+  function build() {
+    range = work ? [WS, WE] : [0, 1440];
+    var h0 = range[0] / 60, h1 = range[1] / 60;
+    var old = channel.querySelectorAll(".cell");
+    for (var k = 0; k < old.length; k++) channel.removeChild(old[k]);
+    cells = [];
+    for (var h = h0; h < h1; h++) {
+      var c = document.createElement("div");
+      var cls = "cell";
+      if (h * 60 >= WS && h * 60 < WE) cls += " work";
+      if (h + 1 <= sun.rise || h >= sun.set) cls += " night";
+      c.className = cls;
+      var f = document.createElement("div");
+      f.className = "fill";
+      c.appendChild(f);
+      channel.insertBefore(c, needle);
+      cells.push({ el: c, f: f, h: h, w: -1 });
+    }
+    root.classList.toggle("work-mode", work);
+    cache = {};
+    layout();
+  }
+
+  function layout() {
+    app.style.height = window.innerHeight + "px";
+    var land = window.innerWidth > window.innerHeight;
+    var step = work ? 1 : (land ? 2 : 3);
+    var h0 = range[0] / 60, h1 = range[1] / 60, html = "";
+    for (var h = h0; h <= h1; h += step) {
+      var i = h - h0, x;
+      if (i < cells.length) x = cells[i].el.offsetLeft - (i > 0 ? 1.5 : 0);
+      else { var l = cells[cells.length - 1].el; x = l.offsetLeft + l.offsetWidth; }
+      html += '<span class="' + (h % 12 === 0 ? "k" : "") + '" style="left:' + x + 'px">' + h12(h) + "</span>";
+    }
+    scale.innerHTML = html;
+
+    var t = "";
+    for (var m = 0; m <= 12; m++) t += '<b class="' + (m % 3 === 0 ? "q" : "") + '" style="left:' + (m / 12 * 100) + '%"></b>';
+    $("mticks").innerHTML = t;
+    tick();
+  }
+
+  /* --- tick --- */
+  function tick() {
+    var now = new Date();
+    if (now.getDate() !== lastDay) {
+      lastDay = now.getDate();
+      sun = { rise: sunTime(now, true), set: sunTime(now, false) };
+      setHTML($("date"), "date", DAYS[now.getDay()] + "&nbsp; " + now.getDate() + " " + MONTHS[now.getMonth()]);
+      build();
+      return;
+    }
+    var H = now.getHours(), mins = H * 60 + now.getMinutes() + now.getSeconds() / 60;
+
+    for (var i = 0; i < cells.length; i++) {
+      var c = cells[i], f = clamp((mins - c.h * 60) / 60, 0, 1), w = Math.round(f * 1000) / 10;
+      if (w !== c.w) {
+        c.w = w;
+        c.f.style.width = w + "%";
+        c.el.classList.toggle("cur", f > 0 && f < 1);
+      }
+    }
+
+    var a = range[0], b = range[1], p = clamp(mins, a, b);
+    var idx = Math.min(Math.floor((p - a) / 60), cells.length - 1), cel = cells[idx].el;
+    var x = cel.offsetLeft + ((p - a) / 60 - idx) * cel.offsetWidth;
+    var tr = "translate3d(" + x.toFixed(1) + "px,0,0)";
+    needle.style.webkitTransform = tr;
+    needle.style.transform = tr;
+    needle.classList.toggle("out", mins < a || mins >= b);
+
+    setHTML($("hh"), "hh", "" + h12(H));
+    setHTML($("mm"), "mm", pad(now.getMinutes()));
+    setHTML($("ap"), "ap", H < 12 ? "AM" : "PM");
+
+    var v1, l1, pct;
+    if (!work) {
+      v1 = dur(1440 - mins); l1 = "LEFT TODAY"; pct = mins / 1440;
+    } else if (mins < WS) {
+      v1 = dur(WS - mins); l1 = "STARTS IN"; pct = 0;
+    } else {
+      v1 = dur(WE - mins); l1 = "LEFT"; pct = (mins - WS) / (WE - WS);
+    }
+    setHTML($("v1"), "v1", v1);
+    setHTML($("l1"), "l1", l1);
+    setHTML($("v2"), "v2", Math.floor(clamp(pct, 0, 1) * 100) + "<i>%</i>");
+    stats.classList.toggle("v-work", work && mins >= WS && mins < WE);
+
+    mfill.style.width = ((now.getMinutes() + now.getSeconds() / 60) / 60 * 100).toFixed(2) + "%";
+
+    var day = now.getDay();
+    led.classList.toggle("on", mins >= WS && mins < WE && day > 0 && day < 6);
+
+    if (!systemTheme) setDark(mins < sun.rise * 60 || mins >= sun.set * 60);
+  }
+
+  var timer;
+  function loop() {
+    tick();
+    clearTimeout(timer);
+    timer = setTimeout(loop, 1000 - (Date.now() % 1000) + 20);
+  }
+
+  $("mode").addEventListener("click", function () {
+    work = !work;
+    try { localStorage.setItem("lc-work", work ? "1" : "0"); } catch (e) {}
+    build();
+  });
+
+  var rt;
+  function relayout() { clearTimeout(rt); rt = setTimeout(layout, 250); }
+  window.addEventListener("resize", relayout);
+  window.addEventListener("orientationchange", relayout);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) loop(); });
+  window.addEventListener("pageshow", loop);
+  document.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
+
+  loop();
+  setTimeout(function () { root.classList.add("ready"); }, 100);
+})();
+</script>
+</body>
+</html>
