@@ -200,7 +200,44 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
 .nt .sl{-webkit-transition:none;transition:none}
 .h .sl{top:4.8vmin;-webkit-transform:translateX(-50%);transform:translateX(-50%)}
 .v .sl{left:7vmin;-webkit-transform:translateY(-50%);transform:translateY(-50%)}
+.dense .sl{font-size:2.7vmin;letter-spacing:0}
+.v .sl{font-size:3.1vmin}
+.v .dense .sl{font-size:2.7vmin}
 .sl.now{color:var(--accent);font-weight:700}
+
+/* settings */
+.knob{z-index:3;position:absolute;right:2.6vmin;bottom:2.6vmin;width:7vmin;height:7vmin;padding:1.5vmin;border:0;border-radius:50%;color:var(--ink2);-webkit-appearance:none;appearance:none;outline:none;
+  background:linear-gradient(160deg,var(--panel-hi),var(--panel) 50%,var(--panel-lo));
+  box-shadow:inset 0 1.5px 0 var(--hi),0 .5vmin 1vmin rgba(0,0,0,.4),0 0 0 .6vmin var(--bezel),0 0 0 .8vmin rgba(0,0,0,.12)}
+.knob:active{box-shadow:inset 0 .4vmin .9vmin rgba(0,0,0,.4),0 0 0 .6vmin var(--bezel),0 0 0 .8vmin rgba(0,0,0,.12)}
+.sheet{position:absolute;left:0;top:0;right:0;bottom:0;border-radius:4.2vmin;z-index:5;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;
+  background:rgba(0,0,0,.42);opacity:0;pointer-events:none;-webkit-transition:opacity .3s;transition:opacity .3s}
+.sheet.on{opacity:1;pointer-events:auto}
+.card{width:92%;max-width:130vmin;padding:4vmin 3.4vmin 3.4vmin;border-radius:3.4vmin;
+  background:linear-gradient(155deg,var(--panel-hi),var(--panel) 45%,var(--panel-lo));
+  box-shadow:inset 0 1.5px 0 var(--hi),0 2vmin 5vmin rgba(0,0,0,.55),0 .5vmin 1vmin rgba(0,0,0,.4);
+  -webkit-transform:translateY(2vmin);transform:translateY(2vmin);-webkit-transition:-webkit-transform .3s,transform .3s;transition:transform .3s}
+.sheet.on .card{-webkit-transform:none;transform:none}
+.row{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;margin-bottom:3.4vmin}
+.rl{width:13vmin;font-size:2.6vmin;font-weight:700;letter-spacing:.2em;color:var(--ink2)}
+.pair{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:flex-end;justify-content:flex-end}
+.dash{width:3vmin;height:.5vmin;margin:0 1.6vmin;border-radius:1px;background:var(--ink2)}
+.step{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+.step output{display:block;width:15vmin;margin:0 1.4vmin;padding:1.5vmin 0;text-align:center;font-size:5.6vmin;font-weight:300;font-variant-numeric:tabular-nums;color:var(--ink);border-radius:1.6vmin;
+  background:linear-gradient(180deg,var(--lcd-lo),var(--lcd) 40%);box-shadow:inset 0 .4vmin 1vmin rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.25),0 1px 0 var(--hi)}
+html[data-dk] .step output{color:#ffb070}
+.step b{display:block;width:9vmin;height:9vmin;border-radius:50%;text-align:center;font-weight:400;font-size:6vmin;line-height:8.6vmin;color:var(--ink);cursor:pointer;
+  background:linear-gradient(160deg,var(--panel-hi),var(--panel) 50%,var(--panel-lo));
+  box-shadow:inset 0 1.5px 0 var(--hi),0 .5vmin 1vmin rgba(0,0,0,.4),0 0 0 1px rgba(0,0,0,.12)}
+.step b.p{box-shadow:inset 0 .4vmin .9vmin rgba(0,0,0,.4),0 0 0 1px rgba(0,0,0,.12)}
+.ok{display:block;margin:1vmin auto 0;width:30vmin;height:9.5vmin;border:0;border-radius:2.4vmin;font-family:inherit;font-size:3vmin;font-weight:700;letter-spacing:.2em;color:#fff;-webkit-appearance:none;appearance:none;outline:none;
+  background:linear-gradient(180deg,#ff8a4a,var(--accent) 60%,#b83f08);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),0 .6vmin 1.2vmin rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.25)}
+.ok:active{box-shadow:inset 0 .5vmin 1vmin rgba(0,0,0,.4),0 0 0 1px rgba(0,0,0,.25)}
+.v .rl{width:12.5vmin;letter-spacing:.1em;font-size:2.3vmin}
+.v .step output{width:14.5vmin;font-size:4.2vmin;padding:1.8vmin 0}
+.v .step b{width:8vmin;height:8vmin;line-height:7.6vmin}
+.v .dash{margin:0 1vmin;width:2vmin}
+.v .step output{margin:0 1vmin}
 
 /* portrait */
 .v .head{-webkit-align-items:flex-start;align-items:flex-start}
@@ -232,6 +269,15 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
     </button>
   </div>
 
+  <button class="knob" id="gear" type="button" aria-label="Set day">
+    <svg viewBox="0 0 24 24" width="100%" height="100%"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></g><g fill="var(--panel)" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="6" r="2.4"/><circle cx="16" cy="12" r="2.4"/><circle cx="10" cy="18" r="2.4"/></g></svg>
+  </button>
+  <div class="sheet" id="sheet"><div class="card">
+    <div class="row"><span class="rl">DAY</span><span id="st-d"></span></div>
+    <div class="row"><span class="rl">WORK</span><span id="st-w"></span></div>
+    <button class="ok" id="ok" type="button">OK</button>
+  </div></div>
+
   <div class="stage"><div class="gauge" id="gauge">
     <div class="rail" id="rail">
       <div class="seg work" id="work"></div>
@@ -246,7 +292,12 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
 
 <script>
 (function () {
-  var WS = 8, WE = 17;           // working day
+  var DS = 6, DE = 23, WS = 8, WE = 17;   // my day / working day (hours, 0.5 steps)
+  try {
+    var saved = JSON.parse(localStorage.getItem('dayline-times') || 'null');
+    if (saved && saved.length === 4 && saved[1] - saved[0] >= 1 && saved[3] - saved[2] >= 1 &&
+        saved[0] >= 0 && saved[1] <= 24 && saved[2] >= 0 && saved[3] <= 24) { DS = saved[0]; DE = saved[1]; WS = saved[2]; WE = saved[3]; }
+  } catch (e) {}
   var LAT = 51.5, LON = -0.12;   // UK (London) for sunrise / sunset
   var mode = 'day';
   try { if (localStorage.getItem('dayline-mode') === 'work') mode = 'work'; } catch (e) {}
@@ -318,7 +369,7 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
   }
 
   /* ---------- placement ---------- */
-  function range() { return mode === 'work' ? [WS, WE] : [0, 24]; }
+  function range() { return mode === 'work' ? [WS, WE] : [DS, DE]; }
   function pos(h, r) { return (h - r[0]) / (r[1] - r[0]) * 100; }
   function place(el, start, size) {
     var s = el.style;
@@ -351,18 +402,20 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
 
   function layout() {
     var r = range(), i, p, hr, show;
+    var span = r[1] - r[0];
+    scaleEl.className = 'scale' + (span > 18 ? ' dense' : '');
     var sunT = sun(new Date());
     place(workEl, pos(WS, r), pos(WE, r) - pos(WS, r));
     place(sunEl, pos(sunT.rise, r), pos(sunT.set, r) - pos(sunT.rise, r));
     for (i = 0; i <= 48; i++) {
       hr = i / 2; p = pos(hr, r);
-      show = p >= -0.01 && p <= 100.01 && (mode === 'work' || i % 2 === 0);
+      show = p >= -0.01 && p <= 100.01 && (span <= 12 || i % 2 === 0);
       place(ticks[i], p, null);
       ticks[i].style.opacity = show ? 1 : 0;
     }
     for (i = 0; i <= 24; i++) {
       p = pos(i, r);
-      show = p >= -0.01 && p <= 100.01 && (mode === 'work' ? true : i % 3 === 0);
+      show = p >= -0.01 && p <= 100.01 && true;
       place(labels[i], p, null);
       labels[i].style.opacity = show ? 1 : 0;
     }
@@ -405,7 +458,7 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
 
     // highlight the current hour label
     var cur = Math.floor(h), i;
-    for (i = 0; i <= 24; i++) labels[i].className = 'sl' + (mode === 'work' && i === cur ? ' now' : '');
+    for (i = 0; i <= 24; i++) labels[i].className = 'sl' + (r[1] - r[0] <= 12 && i === cur ? ' now' : '');
   }
 
   /* ---------- orientation ---------- */
@@ -431,6 +484,58 @@ html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.
     layout(); update();
   }
   sw.addEventListener('click', function () { setMode(mode === 'work' ? 'day' : 'work'); });
+
+  /* ---------- set my day ---------- */
+  function fmt(h) { var m = Math.round(h * 60); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
+  var vals = { ds: 0, de: 0, ws: 0, we: 0 }, outs = {};
+  function readVals() { vals.ds = DS; vals.de = DE; vals.ws = WS; vals.we = WE; }
+  function adjust(key, d) {
+    var v = vals[key] + d * 0.5;
+    if (key === 'ds') v = Math.max(0, Math.min(vals.de - 1, v));
+    if (key === 'de') v = Math.min(24, Math.max(vals.ds + 1, v));
+    if (key === 'ws') v = Math.max(0, Math.min(vals.we - 1, v));
+    if (key === 'we') v = Math.min(24, Math.max(vals.ws + 1, v));
+    if (v === vals[key]) return;
+    vals[key] = v;
+    DS = vals.ds; DE = vals.de; WS = vals.ws; WE = vals.we;
+    outs[key].textContent = fmt(v);
+    try { localStorage.setItem('dayline-times', JSON.stringify([DS, DE, WS, WE])); } catch (e) {}
+    layout(); update();
+  }
+  function hold(btn, fn) {
+    var t1 = 0, t2 = 0;
+    function stop() { btn.className = ''; clearTimeout(t1); clearInterval(t2); }
+    function start(e) { e.preventDefault(); stop(); btn.className = 'p'; fn(); t1 = setTimeout(function () { t2 = setInterval(fn, 90); }, 420); }
+    btn.addEventListener('touchstart', start);
+    btn.addEventListener('touchend', stop); btn.addEventListener('touchcancel', stop);
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('mouseup', stop); btn.addEventListener('mouseleave', stop);
+  }
+  function stepper(key) {
+    var w = document.createElement('div'); w.className = 'step';
+    var minus = document.createElement('b'), plus = document.createElement('b'), o = document.createElement('output');
+    minus.textContent = '\u2212'; plus.textContent = '+';
+    w.appendChild(minus); w.appendChild(o); w.appendChild(plus);
+    outs[key] = o;
+    hold(minus, function () { adjust(key, -1); });
+    hold(plus, function () { adjust(key, 1); });
+    return w;
+  }
+  function buildRow(id, a, b) {
+    var host = $(id), pair = document.createElement('span'), dash = document.createElement('i');
+    pair.className = 'pair'; dash.className = 'dash';
+    pair.appendChild(stepper(a)); pair.appendChild(dash); pair.appendChild(stepper(b));
+    host.parentNode.replaceChild(pair, host);
+  }
+  buildRow('st-d', 'ds', 'de'); buildRow('st-w', 'ws', 'we');
+  var sheet = $('sheet');
+  $('gear').addEventListener('click', function () {
+    readVals();
+    outs.ds.textContent = fmt(DS); outs.de.textContent = fmt(DE); outs.ws.textContent = fmt(WS); outs.we.textContent = fmt(WE);
+    sheet.className = 'sheet on';
+  });
+  $('ok').addEventListener('click', function () { sheet.className = 'sheet'; });
+  sheet.addEventListener('click', function (e) { if (e.target === sheet) sheet.className = 'sheet'; });
 
   /* ---------- tap time: auto / light / dark ---------- */
   var tagEl = $('tag'), tagTimer = 0;
