@@ -34,7 +34,7 @@
   --shadow:rgba(0,0,0,.38);
   --hi:rgba(255,255,255,.75);
 }
-html[data-theme="dark"]{
+html[data-dk]{
   --desk:#0a0a09;
   --desk2:#050505;
   --panel:#2b2a27;
@@ -111,14 +111,14 @@ body{
   position:relative;overflow:hidden;
 }
 .lcd:after{content:"";position:absolute;left:0;right:0;top:0;height:46%;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0));pointer-events:none}
-html[data-theme="dark"] .lcd:after{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0))}
+html[data-dk] .lcd:after{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0))}
 .led{width:1.7vmin;height:1.7vmin;border-radius:50%;margin-right:2.4vmin;-webkit-flex-shrink:0;flex-shrink:0;
   background:radial-gradient(circle at 35% 30%,#8a5a45,#4a2a1e);box-shadow:inset 0 0 0 1px rgba(0,0,0,.4),0 1px 0 var(--hi);-webkit-transition:all .4s;transition:all .4s}
 .led.on{background:radial-gradient(circle at 35% 30%,#ffd2a8,var(--accent) 60%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),0 0 1.6vmin 2px var(--accent)}
 .lcdtxt{-webkit-flex:1;flex:1}
 .lab{font-size:2.2vmin;letter-spacing:.24em;font-weight:600;color:var(--ink2)}
 .val{font-size:10.5vmin;line-height:1.05;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--ink)}
-html[data-theme="dark"] .val{color:#ffb070;text-shadow:0 0 1.6vmin rgba(255,120,30,.4)}
+html[data-dk] .val{color:#ffb070;text-shadow:0 0 1.6vmin rgba(255,120,30,.4)}
 .pct{font-size:4.8vmin;font-weight:300;font-variant-numeric:tabular-nums;color:var(--ink2);margin-left:2vmin}
 
 /* switch */
@@ -163,8 +163,8 @@ html[data-theme="dark"] .val{color:#ffb070;text-shadow:0 0 1.6vmin rgba(255,120,
 .rail:after{content:"";position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 42%,rgba(0,0,0,.06))}
 .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.22),rgba(255,255,255,0) 42%,rgba(0,0,0,.06))}
-html[data-theme="dark"] .rail:after{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%)}
-html[data-theme="dark"] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%)}
+html[data-dk] .rail:after{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%)}
+html[data-dk] .v .rail:after{background:linear-gradient(90deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%)}
 
 .seg{position:absolute;-webkit-transition:left .7s cubic-bezier(.5,0,.2,1),width .7s cubic-bezier(.5,0,.2,1),top .7s cubic-bezier(.5,0,.2,1),height .7s cubic-bezier(.5,0,.2,1),opacity .5s;transition:left .7s cubic-bezier(.5,0,.2,1),width .7s cubic-bezier(.5,0,.2,1),top .7s cubic-bezier(.5,0,.2,1),height .7s cubic-bezier(.5,0,.2,1),opacity .5s}
 .nt .seg{-webkit-transition:none;transition:none}
@@ -310,8 +310,7 @@ html[data-theme="dark"] .v .rail:after{background:linear-gradient(90deg,rgba(255
       var s = sun(now), h = now.getHours() + now.getMinutes() / 60;
       dark = h < s.rise || h >= s.set;
     }
-    var t = dark ? 'dark' : 'light';
-    if (root.getAttribute('data-theme') !== t) { root.setAttribute('data-theme', t); }
+    if (dark) root.setAttribute('data-dk', '1'); else root.removeAttribute('data-dk');
   }
   if (systemTheme) {
     var onTheme = function () { applyTheme(new Date()); };
