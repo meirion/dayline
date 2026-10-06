@@ -204,6 +204,46 @@ html.work-mode .thumb{background-color:var(--fill-work)}
 .mticks{position:relative;height:1.6vmin;margin:0 .35vmin}
 .mticks b{position:absolute;top:.5vmin;width:1px;height:.7vmin;background:var(--ink2);opacity:.5}
 .mticks b.q{height:1.1vmin;opacity:.9}
+
+/* day setter */
+.set{
+  width:4.6vmin;height:4.6vmin;border-radius:50%;margin-right:3vmin;border:0;outline:0;cursor:pointer;
+  background-color:var(--panel);
+  background-image:
+    radial-gradient(circle,var(--panel2) 0,var(--panel2) 28%,transparent 30%),
+    repeating-radial-gradient(circle,rgba(0,0,0,.10) 0,rgba(0,0,0,.10) 1px,transparent 1px,transparent 3px),
+    linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.10));
+  box-shadow:0 .3vmin .7vmin rgba(0,0,0,.30),inset 0 1px 0 var(--hl);
+}
+.set:active{box-shadow:0 .1vmin .3vmin rgba(0,0,0,.30),inset 0 1px 2px rgba(0,0,0,.2)}
+.sheet{
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:10;
+  display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;
+  background:rgba(0,0,0,.28);opacity:0;visibility:hidden;
+  transition:opacity .25s,visibility 0s .25s;
+}
+.sheet.open{opacity:1;visibility:visible;transition:opacity .25s}
+.card{
+  border-radius:3.2vmin;padding:4vmin 4.5vmin;
+  background-color:var(--panel);
+  background-image:linear-gradient(180deg,var(--panel),var(--panel2));
+  box-shadow:inset 0 1px 0 var(--hl),0 3vmin 6vmin -1vmin rgba(0,0,0,.45);
+  -webkit-transform:scale(.96);transform:scale(.96);transition:transform .25s;
+}
+.sheet.open .card{-webkit-transform:none;transform:none}
+.row{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+.row+.row{margin-top:3vmin}
+.rl{width:12vmin;font-size:1.7vmin;font-weight:600;letter-spacing:.28em;color:var(--ink2)}
+.rv{min-width:28vmin;text-align:center;font-size:6.4vmin;font-weight:300;white-space:nowrap}
+.rv i{font-style:normal;font-size:.32em;font-weight:500;letter-spacing:.15em;color:var(--ink2);margin-left:.4em}
+.step{
+  width:7.4vmin;height:7.4vmin;border-radius:50%;border:0;outline:0;cursor:pointer;
+  font:300 4.4vmin/1 "Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink);
+  background-color:var(--panel);
+  background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.08));
+  box-shadow:0 .35vmin .8vmin rgba(0,0,0,.30),inset 0 1px 0 var(--hl);
+}
+.step:active{background-color:var(--panel2);box-shadow:0 .1vmin .3vmin rgba(0,0,0,.3),inset 0 1px 3px rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
@@ -211,6 +251,7 @@ html.work-mode .thumb{background-color:var(--fill-work)}
   <header>
     <div class="date" id="date"></div>
     <div class="controls">
+      <button class="set" id="setBtn" aria-label="Set day"></button>
       <div class="led" id="led"></div>
       <button class="switch" id="mode" aria-label="Toggle working day">
         <span class="sl a">DAY</span><span class="slot"><span class="thumb"></span></span><span class="sl b">WORK</span>
@@ -239,6 +280,13 @@ html.work-mode .thumb{background-color:var(--fill-work)}
   </section>
 </div>
 
+<div class="sheet" id="sheet">
+  <div class="card" id="card">
+    <div class="row" data-k="0"><span class="rl">START</span><button class="step" data-d="-30">&minus;</button><span class="rv" id="sv0"></span><button class="step" data-d="30">+</button></div>
+    <div class="row" data-k="1"><span class="rl">END</span><button class="step" data-d="-30">&minus;</button><span class="rv" id="sv1"></span><button class="step" data-d="30">+</button></div>
+  </div>
+</div>
+
 <script>
 (function () {
   "use strict";
@@ -251,10 +299,14 @@ html.work-mode .thumb{background-color:var(--fill-work)}
   var root = document.documentElement, app = $("app"), channel = $("channel"), scale = $("scale"),
       needle = $("needle"), mfill = $("mfill"), led = $("led"), stats = $("stats");
 
-  var work = false;
-  try { work = localStorage.getItem("lc-work") === "1"; } catch (e) {}
+  var work = false, DS = 6 * 60, DE = 23 * 60;   // my day defaults 06:00–23:00
+  try {
+    work = localStorage.getItem("lc-work") === "1";
+    var sd = (localStorage.getItem("lc-day") || "").split(",");
+    if (sd.length === 2 && +sd[1] > +sd[0]) { DS = +sd[0]; DE = +sd[1]; }
+  } catch (e) {}
 
-  var cells = [], range = [0, 1440], lastDay = -1, sun = { rise: 7, set: 19 }, systemTheme = false;
+  var cells = [], range = [DS, DE], lastDay = -1, sun = { rise: 7, set: 19 }, systemTheme = false;
   var cache = {};
 
   function setHTML(el, key, html) { if (cache[key] !== html) { cache[key] = html; el.innerHTML = html; } }
@@ -304,45 +356,68 @@ html.work-mode .thumb{background-color:var(--fill-work)}
 
   /* --- build --- */
   function h12(h) { h = h % 12; return h === 0 ? 12 : h; }
+  function fmt(m) { return h12(Math.floor(m / 60)) + (m % 60 ? ":" + pad(m % 60) : ""); }
+  function fmtFull(m) {
+    var h = Math.floor(m / 60) % 24;
+    return h12(h) + ":" + pad(m % 60) + "<i>" + (h < 12 ? "AM" : "PM") + "</i>";
+  }
 
+  // cells follow clock hours; a half-hour start/end gives a narrower first/last cell
   function build() {
-    range = work ? [WS, WE] : [0, 1440];
-    var h0 = range[0] / 60, h1 = range[1] / 60;
+    range = work ? [WS, WE] : [DS, DE];
     var old = channel.querySelectorAll(".cell");
     for (var k = 0; k < old.length; k++) channel.removeChild(old[k]);
     cells = [];
-    for (var h = h0; h < h1; h++) {
+    for (var s = range[0]; s < range[1]; ) {
+      var e = Math.min((Math.floor(s / 60) + 1) * 60, range[1]);
       var c = document.createElement("div");
       var cls = "cell";
-      if (h * 60 >= WS && h * 60 < WE) cls += " work";
-      if (h + 1 <= sun.rise || h >= sun.set) cls += " night";
+      if (s >= WS && e <= WE) cls += " work";
+      if (e <= sun.rise * 60 || s >= sun.set * 60) cls += " night";
       c.className = cls;
+      c.style.webkitFlexGrow = c.style.flexGrow = e - s;
       var f = document.createElement("div");
       f.className = "fill";
       c.appendChild(f);
       channel.insertBefore(c, needle);
-      cells.push({ el: c, f: f, h: h, w: -1 });
+      cells.push({ el: c, f: f, s: s, e: e, w: -1 });
+      s = e;
     }
     root.classList.toggle("work-mode", work);
     cache = {};
     layout();
   }
 
+  function posX(m) {
+    for (var i = 0; i < cells.length; i++) {
+      var c = cells[i];
+      if (m < c.e || i === cells.length - 1) {
+        if (m <= c.s && i > 0) return c.el.offsetLeft - 1.5;
+        return c.el.offsetLeft + clamp((m - c.s) / (c.e - c.s), 0, 1) * c.el.offsetWidth;
+      }
+    }
+    return 0;
+  }
+
   function layout() {
     app.style.height = window.innerHeight + "px";
     var land = window.innerWidth > window.innerHeight;
-    var step = work ? 1 : (land ? 2 : 3);
-    var h0 = range[0] / 60, h1 = range[1] / 60, html = "";
-    for (var h = h0; h <= h1; h += step) {
-      var i = h - h0, x;
-      if (i < cells.length) x = cells[i].el.offsetLeft - (i > 0 ? 1.5 : 0);
-      else { var l = cells[cells.length - 1].el; x = l.offsetLeft + l.offsetWidth; }
-      html += '<span class="' + (h % 12 === 0 ? "k" : "") + '" style="left:' + x + 'px">' + h12(h) + "</span>";
+    var span = (range[1] - range[0]) / 60;
+    var step = span <= (land ? 10 : 9) ? 1 : span <= (land ? 20 : 15) ? 2 : 3;
+    var marks = [range[0]];
+    for (var h = Math.ceil(range[0] / 60) * 60; h < range[1]; h += 60) {
+      if ((h / 60) % step === 0 && h - range[0] >= 60 && range[1] - h >= 60) marks.push(h);
+    }
+    marks.push(range[1]);
+    var html = "";
+    for (var i = 0; i < marks.length; i++) {
+      var m = marks[i];
+      html += '<span class="' + (m % 720 === 0 ? "k" : "") + '" style="left:' + posX(m).toFixed(1) + 'px">' + fmt(m) + "</span>";
     }
     scale.innerHTML = html;
 
     var t = "";
-    for (var m = 0; m <= 12; m++) t += '<b class="' + (m % 3 === 0 ? "q" : "") + '" style="left:' + (m / 12 * 100) + '%"></b>';
+    for (var q = 0; q <= 12; q++) t += '<b class="' + (q % 3 === 0 ? "q" : "") + '" style="left:' + (q / 12 * 100) + '%"></b>';
     $("mticks").innerHTML = t;
     tick();
   }
@@ -360,7 +435,7 @@ html.work-mode .thumb{background-color:var(--fill-work)}
     var H = now.getHours(), mins = H * 60 + now.getMinutes() + now.getSeconds() / 60;
 
     for (var i = 0; i < cells.length; i++) {
-      var c = cells[i], f = clamp((mins - c.h * 60) / 60, 0, 1), w = Math.round(f * 1000) / 10;
+      var c = cells[i], f = clamp((mins - c.s) / (c.e - c.s), 0, 1), w = Math.round(f * 1000) / 10;
       if (w !== c.w) {
         c.w = w;
         c.f.style.width = w + "%";
@@ -368,10 +443,8 @@ html.work-mode .thumb{background-color:var(--fill-work)}
       }
     }
 
-    var a = range[0], b = range[1], p = clamp(mins, a, b);
-    var idx = Math.min(Math.floor((p - a) / 60), cells.length - 1), cel = cells[idx].el;
-    var x = cel.offsetLeft + ((p - a) / 60 - idx) * cel.offsetWidth;
-    var tr = "translate3d(" + x.toFixed(1) + "px,0,0)";
+    var a = range[0], b = range[1];
+    var tr = "translate3d(" + posX(clamp(mins, a, b)).toFixed(1) + "px,0,0)";
     needle.style.webkitTransform = tr;
     needle.style.transform = tr;
     needle.classList.toggle("out", mins < a || mins >= b);
@@ -381,12 +454,10 @@ html.work-mode .thumb{background-color:var(--fill-work)}
     setHTML($("ap"), "ap", H < 12 ? "AM" : "PM");
 
     var v1, l1, pct;
-    if (!work) {
-      v1 = dur(1440 - mins); l1 = "LEFT TODAY"; pct = mins / 1440;
-    } else if (mins < WS) {
-      v1 = dur(WS - mins); l1 = "STARTS IN"; pct = 0;
+    if (mins < a) {
+      v1 = dur(a - mins); l1 = "STARTS IN"; pct = 0;
     } else {
-      v1 = dur(WE - mins); l1 = "LEFT"; pct = (mins - WS) / (WE - WS);
+      v1 = dur(b - mins); l1 = work ? "LEFT" : "LEFT TODAY"; pct = (mins - a) / (b - a);
     }
     setHTML($("v1"), "v1", v1);
     setHTML($("l1"), "l1", l1);
@@ -411,6 +482,25 @@ html.work-mode .thumb{background-color:var(--fill-work)}
   $("mode").addEventListener("click", function () {
     work = !work;
     try { localStorage.setItem("lc-work", work ? "1" : "0"); } catch (e) {}
+    build();
+  });
+
+  /* --- day setter --- */
+  var sheet = $("sheet");
+  function showDay() {
+    $("sv0").innerHTML = fmtFull(DS);
+    $("sv1").innerHTML = fmtFull(DE);
+  }
+  $("setBtn").addEventListener("click", function () { showDay(); sheet.classList.add("open"); });
+  sheet.addEventListener("click", function (e) {
+    if (e.target === sheet) { sheet.classList.remove("open"); return; }
+    var btn = e.target.closest ? e.target.closest(".step") : null;
+    if (!btn) return;
+    var k = +btn.parentNode.getAttribute("data-k"), d = +btn.getAttribute("data-d");
+    if (k === 0) DS = clamp(DS + d, 0, DE - 60);
+    else DE = clamp(DE + d, DS + 60, 1440);
+    try { localStorage.setItem("lc-day", DS + "," + DE); } catch (err) {}
+    showDay();
     build();
   });
 
